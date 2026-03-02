@@ -103,10 +103,8 @@ final class EventTap {
             return event
         }
 
-        // Check if this is the gesture button (button 5 = third thumb on MX Master 4).
-        // The gesture button is identified in config as button6 but its physical behavior
-        // is gesture-based. We detect it by checking if gesture actions are configured.
-        if button == gestureEngine.gestureButtonNumber {
+        // Check if this is the gesture button.
+        if gestureEngine.isEnabled && button == gestureEngine.gestureButtonNumber {
             gestureEngine.buttonDown(event: event)
             return nil // suppress
         }
@@ -132,7 +130,7 @@ final class EventTap {
             return event
         }
 
-        if button == gestureEngine.gestureButtonNumber {
+        if gestureEngine.isEnabled && button == gestureEngine.gestureButtonNumber {
             gestureEngine.buttonUp(event: event)
             return nil
         }

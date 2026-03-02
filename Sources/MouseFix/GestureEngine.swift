@@ -4,17 +4,16 @@ import Foundation
 /// Tracks gesture button hold + mouse movement to detect directional gestures.
 ///
 /// While the gesture button is held:
-/// - Moving left → fires gestureHoldLeft action
-/// - Moving right → fires gestureHoldRight action
-/// - Moving up → fires gestureHoldUp action
-/// - Releasing with no significant movement → fires gestureClick action
+/// - Moving left fires gestureHoldLeft
+/// - Moving right fires gestureHoldRight
+/// - Moving up fires gestureHoldUp
+/// - Releasing with no significant movement fires gestureClick
 final class GestureEngine {
     private let buttonMap: ButtonMap
     private let hapticEngine: HapticEngine
 
-    /// Which mouse button number is the gesture button.
-    /// Default 5 for MX Master 4 third thumb button - update via `mousefix discover`.
-    let gestureButtonNumber: Int64 = 5
+    /// Which mouse button number is the gesture button. From config.
+    let gestureButtonNumber: Int64
 
     /// Movement threshold in pixels to trigger a directional action.
     private let threshold: Double = 50.0
@@ -28,7 +27,11 @@ final class GestureEngine {
     init(buttonMap: ButtonMap, hapticEngine: HapticEngine) {
         self.buttonMap = buttonMap
         self.hapticEngine = hapticEngine
+        self.gestureButtonNumber = buttonMap.gestureButton
     }
+
+    /// Whether gesture mode is enabled (gesture button is configured).
+    var isEnabled: Bool { gestureButtonNumber >= 0 }
 
     func buttonDown(event: CGEvent) {
         isHeld = true
@@ -42,7 +45,6 @@ final class GestureEngine {
         isHeld = false
 
         if !hasFiredDirection {
-            // No significant movement - treat as a click.
             KeySynth.fire(buttonMap.gestureClick)
         }
     }
@@ -59,12 +61,10 @@ final class GestureEngine {
         let absX = abs(deltaX)
         let absY = abs(deltaY)
 
-        // Check if we've exceeded the threshold in any direction.
         if absX >= threshold || absY >= threshold {
             hasFiredDirection = true
 
             if absX > absY {
-                // Horizontal dominant
                 if deltaX < 0 {
                     KeySynth.fire(buttonMap.gestureHoldLeft)
                     hapticEngine.fireHaptic()
@@ -73,11 +73,9 @@ final class GestureEngine {
                     hapticEngine.fireHaptic()
                 }
             } else {
-                // Vertical dominant - up only (negative Y = up in screen coordinates)
                 if deltaY < 0 {
                     KeySynth.fire(buttonMap.gestureHoldUp)
                 } else {
-                    // Down gesture - currently unused, could be added later
                     KeySynth.fire(buttonMap.gestureHoldUp)
                 }
             }

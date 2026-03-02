@@ -10,27 +10,29 @@
 
 **Ditch Logi Options+. Keep every button.**
 
-Open-source MX Master 4 remapper. Config-file driven, zero telemetry, no cloud account.
+Open-source mouse button remapper for macOS. YAML config, zero telemetry, no cloud account.<br/>
+Built for the MX Master 4, works with any multi-button mouse.
 
 </div>
 
 ---
 
-## What It Does
+## Features
 
 | Feature | Description |
 |---------|-------------|
-| **Button Remapping** | Map any MX Master button to any keyboard shortcut via YAML config |
-| **Gesture Engine** | Tap gesture button for App Switcher, hold+swipe for Spaces/Expose |
-| **Tilt Scroll** | Horizontal scroll wheel tilt fires Cmd+[ / Cmd+] (tab switching) |
-| **Laser Pointer** | Hold scroll button to project a colored circle overlay on screen |
-| **Haptic Feedback** | HID++ protocol sends haptic pulses to the mouse on Space switch |
-| **Discovery Mode** | `mousefix discover` logs every button press with its macOS button number |
+| **Button Remapping** | Map any mouse button to any keyboard shortcut |
+| **Gesture Engine** | Hold a button + swipe mouse for directional actions (Spaces, Expose) |
+| **Tilt Scroll** | Horizontal scroll wheel tilt fires tab switching |
+| **Laser Pointer** | Hold a button to project a colored circle on screen |
+| **Haptic Feedback** | Logitech HID++ protocol sends vibration pulses to the mouse |
+| **Discovery Mode** | `mousefix discover` shows what number each button reports |
+| **Any Mouse** | Config maps raw button numbers to actions - works with any device |
 
 
 ## Quick Start
 
-### Install
+### 1. Build
 
 ```bash
 git clone https://github.com/JDRV-space/mousefix.git
@@ -39,78 +41,128 @@ swift build -c release
 cp .build/release/MouseFix /usr/local/bin/mousefix
 ```
 
-### Grant Permissions
+### 2. Permissions
 
-System Settings > Privacy & Security:
-- **Accessibility** - for CGEvent tap (intercepting mouse events)
-- **Input Monitoring** - for reading mouse button presses
+MouseFix needs two macOS permissions to intercept and remap mouse events:
 
-### Discover Your Buttons
+**System Settings > Privacy & Security > Accessibility**
+Add your terminal app (Terminal, iTerm, Warp, etc.) or the MouseFix binary.
 
-Button numbers vary by device and connection method. Run discovery first:
+**System Settings > Privacy & Security > Input Monitoring**
+Same as above. macOS will prompt you the first time you run MouseFix.
+
+### 3. Run
 
 ```bash
-mousefix discover
-# Press each button on your mouse
-# Output: [discover] Button DOWN - number: 3
+mousefix
 ```
 
-### Configure
+That's it. Your MX Master 4 buttons are now remapped with the defaults below. Stop with `Ctrl+C`.
+
+### Default Mappings (MX Master 4)
+
+These are the out-of-the-box mappings. They work immediately if you have an MX Master 4 connected via Bluetooth.
+
+| Button | Action |
+|--------|--------|
+| Middle click | MiddleClick (unchanged) |
+| Back thumb | Cmd+Z (Undo) |
+| Forward thumb | Cmd+Shift+Z (Redo) |
+| Third thumb | Cmd+Space (Spotlight) |
+| Top button | Cmd+Shift+4 (Screenshot) |
+| Below scroll | LaserPointer (hold to show) |
+
+| Gesture (third thumb) | Action |
+|------------------------|--------|
+| Tap | Cmd+Tab (App Switcher) |
+| Hold + swipe left | Ctrl+Left (Space left + haptic) |
+| Hold + swipe right | Ctrl+Right (Space right + haptic) |
+| Hold + swipe up | Ctrl+Down (App Expose) |
+
+| Tilt Scroll | Action |
+|-------------|--------|
+| Tilt left | Cmd+[ (Previous tab) |
+| Tilt right | Cmd+] (Next tab) |
+
+> The gesture button (third thumb) has dual behavior: quick tap fires App Switcher, hold+swipe fires directional actions. When gesture mode is enabled for a button, it replaces that button's direct action.
+
+
+## Customizing
+
+### Edit the config
 
 ```bash
 mkdir -p ~/.config/mousefix
 cp config.example.yaml ~/.config/mousefix/config.yaml
-# Edit config.yaml to match your button numbers
 ```
 
-### Run
-
-```bash
-mousefix         # starts the daemon (default)
-mousefix run     # same as above
-mousefix help    # show all commands
-```
-
-Stop with `Ctrl+C`.
-
-
-## Config
+Open `~/.config/mousefix/config.yaml` in any editor. The format maps macOS button numbers directly to actions:
 
 ```yaml
-# ~/.config/mousefix/config.yaml
+# Map button numbers to actions
+buttons:
+  2: "MiddleClick"          # Middle click
+  3: "Cmd+Z"                # Back thumb -> Undo
+  4: "Cmd+Shift+Z"          # Forward thumb -> Redo
+  5: "Cmd+Space"             # Third thumb -> Spotlight
+  6: "Cmd+Shift+4"          # Top button -> Screenshot
+  7: "LaserPointer"          # Below scroll -> Laser pointer
 
-default:
-  button3: "MiddleClick"              # Middle click
-  button4: "Cmd+Z"                    # Back thumb -> Undo
-  button5: "Cmd+Shift+Z"             # Forward thumb -> Redo
-  button6: "Cmd+Space"               # Third thumb -> Spotlight
-  gesture_click: "Cmd+Tab"           # Gesture tap -> App Switcher
-  gesture_hold_left: "Ctrl+Left"     # Gesture+left -> Space left (+ haptic)
-  gesture_hold_right: "Ctrl+Right"   # Gesture+right -> Space right (+ haptic)
-  gesture_hold_up: "Ctrl+Down"       # Gesture+up -> App Expose
-  top_button: "Cmd+Shift+4"          # Top button -> Screenshot
-  scroll_button: "LaserPointer"      # Below scroll -> Laser pointer (hold)
-  tilt_left: "Cmd+["                 # Tilt left -> Previous tab
-  tilt_right: "Cmd+]"               # Tilt right -> Next tab
+# Gesture: hold a button and swipe
+gesture:
+  button: 5                  # Which button triggers gestures
+  click: "Cmd+Tab"           # Tap -> App Switcher
+  hold_left: "Ctrl+Left"    # Swipe left -> Space left
+  hold_right: "Ctrl+Right"  # Swipe right -> Space right
+  hold_up: "Ctrl+Down"      # Swipe up -> Expose
+
+# Horizontal scroll tilt
+tilt_scroll:
+  left: "Cmd+["             # Tilt left -> Previous tab
+  right: "Cmd+]"            # Tilt right -> Next tab
 ```
 
-### Action Types
+### Using a different mouse
 
-| Action | Effect |
-|--------|--------|
-| `"Cmd+Z"` | Any keyboard shortcut with modifiers |
-| `"MiddleClick"` | Pass through as native middle click |
-| `"LaserPointer"` | Show laser pointer circle while held |
-| `"MissionControl"` | Trigger Mission Control |
-| `"None"` | Disable the button entirely |
+If you're not using an MX Master 4, your button numbers might be different. Run discovery mode to find them:
 
-### Supported Modifiers
+```bash
+mousefix discover
+```
 
-`Cmd`, `Ctrl`, `Shift`, `Opt` (also accepts `Command`, `Control`, `Option`, `Alt`)
+Press each button on your mouse. The output shows the number macOS assigns to it:
 
-### Supported Keys
+```
+[discover] Button DOWN - number: 3
+[discover] Button UP   - number: 3
+```
 
-Letters `A-Z`, numbers `0-9`, symbols `[ ] ; ' , . / \ - =`, arrows `Left Right Up Down`, function keys `F1-F15`, special keys `Space Tab Return Escape Delete Home End PageUp PageDown`
+Then edit your config to use those numbers. Any mouse with extra buttons (3+) works for button remapping. Gesture detection and tilt scroll work with any mouse. Haptic feedback is Logitech-only (HID++ protocol).
+
+### Action types
+
+| Action | What it does |
+|--------|-------------|
+| `"Cmd+Z"` | Any keyboard shortcut. Modifiers: `Cmd`, `Ctrl`, `Shift`, `Opt` |
+| `"MiddleClick"` | Native middle click passthrough |
+| `"LaserPointer"` | Red circle overlay follows cursor while button is held |
+| `"MissionControl"` | Triggers Mission Control (Ctrl+Up) |
+| `"None"` | Disables the button |
+
+### Supported keys
+
+`A-Z`, `0-9`, `[ ] ; ' , . / \ - =`, `Left Right Up Down`, `F1-F15`, `Space Tab Return Escape Delete Home End PageUp PageDown`
+
+
+## CLI
+
+```
+mousefix              Run the daemon (default)
+mousefix run          Same as above
+mousefix discover     Log button numbers for all mouse events
+mousefix help         Show help
+mousefix version      Show version
+```
 
 
 ## Architecture
@@ -127,28 +179,28 @@ Sources/MouseFix/
   ButtonMap.swift       Button number -> Action enum mapping
 ```
 
-### How It Works
+### How it works
 
-1. **CGEvent tap** intercepts all `otherMouseDown`, `otherMouseUp`, and `scrollWheel` events at the session level
-2. Each event's button number is looked up in the **ButtonMap** to find the configured action
-3. The original mouse event is **suppressed** and a synthesized keyboard event is posted via `CGEvent.post`
-4. **Gesture detection**: when the gesture button is held, mouse movement deltas accumulate until a directional threshold (50px) is exceeded
-5. **Tilt scroll**: horizontal axis delta on scrollWheel events fires tab-switch keystrokes with 80ms debounce
-6. **Haptic feedback**: on Space-switch gestures, a HID++ short report is sent to the MX Master via IOKit
-7. **Laser pointer**: a borderless `NSWindow` at `.screenSaver` level tracks mouse position while the scroll button is held
+1. **CGEvent tap** intercepts `otherMouseDown/Up` and `scrollWheel` events at the session level
+2. Button number is looked up in the config to find the mapped action
+3. Original mouse event is suppressed and a synthesized keyboard event is posted
+4. **Gesture detection**: when the gesture button is held, mouse deltas accumulate until a 50px threshold triggers a directional action
+5. **Tilt scroll**: horizontal scrollWheel delta fires tab-switch keystrokes with 80ms debounce
+6. **Haptic**: HID++ short report sent to the mouse via IOKit on Space-switch gestures
+7. **Laser pointer**: borderless NSWindow at `.screenSaver` level tracks cursor position
 
 
 ## Requirements
 
 - macOS 13+ (Ventura or later)
 - Swift 5.9+
-- Logitech MX Master 4 (other mice work for basic remapping - button numbers may differ)
+- Any multi-button mouse (MX Master 4 defaults built-in, haptic feedback Logitech-only)
 
 
 ## Roadmap
 
 - [ ] Per-app profiles (different mappings per frontmost app)
-- [ ] `mousefix edit` - opens config in `$EDITOR`
+- [ ] `mousefix edit` opens config in $EDITOR
 - [ ] LaunchAgent for auto-start on login
 - [ ] Homebrew formula
 - [ ] Optional menu bar icon

@@ -27,7 +27,15 @@ final class HapticEngine {
     /// Default haptic pattern (0 = short click, 1 = long click, etc.).
     private var pattern: UInt8 = 0
 
+    /// Device name to match (substring, case-insensitive).
+    private var deviceNameFilter: String = "mx master"
+
     init() {}
+
+    /// Set the device name filter from config.
+    func setDeviceFilter(_ name: String) {
+        self.deviceNameFilter = name.lowercased()
+    }
 
     /// Attempt to connect to the MX Master 4 and discover the haptic feature index.
     func connect() {
@@ -61,8 +69,7 @@ final class HapticEngine {
             let product = IOHIDDeviceGetProperty(dev, kIOHIDProductKey as CFString) as? String ?? "unknown"
             print("[haptic] Found Logitech device: \(product)")
 
-            // Look for MX Master 4 (name varies: "MX Master 4", "MX Master 4S", etc.)
-            if product.lowercased().contains("mx master") {
+            if product.lowercased().contains(deviceNameFilter) {
                 self.device = dev
                 print("[haptic] Connected to \(product)")
                 discoverHapticFeature()

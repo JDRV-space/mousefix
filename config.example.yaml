@@ -1,25 +1,42 @@
-# MouseFix - MX Master 4 Button Remapper
+# MouseFix config
 # Copy to ~/.config/mousefix/config.yaml
 #
-# Action format:
-#   "Modifier+Key"     - Keyboard shortcut (Cmd, Ctrl, Shift, Opt + any key)
-#   "MiddleClick"      - Pass through middle click
-#   "LaserPointer"     - Show laser pointer circle while held
-#   "MissionControl"   - Trigger Mission Control
-#   "None"             - Disable the button
+# Button numbers: run `mousefix discover` to see what number each button reports.
+# MX Master 4 defaults are pre-filled below.
 #
-# Button numbers may vary by device. Run `mousefix discover` to find yours.
+# Actions:
+#   "Cmd+Z"          any keyboard shortcut (Cmd, Ctrl, Shift, Opt + key)
+#   "MiddleClick"    native middle click
+#   "LaserPointer"   laser pointer circle while held
+#   "MissionControl" trigger Mission Control
+#   "None"           disable the button
 
-default:
-  button3: "MiddleClick"              # Middle click - keep default
-  button4: "Cmd+Z"                    # Back thumb → Undo
-  button5: "Cmd+Shift+Z"             # Forward thumb → Redo
-  button6: "Cmd+Space"               # Third thumb → Spotlight
-  gesture_click: "Cmd+Tab"           # Gesture tap → App Switcher
-  gesture_hold_left: "Ctrl+Left"     # Gesture + left → Space left (+ haptic)
-  gesture_hold_right: "Ctrl+Right"   # Gesture + right → Space right (+ haptic)
-  gesture_hold_up: "Ctrl+Down"       # Gesture + up → App Exposé
-  top_button: "Cmd+Shift+4"          # Top button → Screenshot
-  scroll_button: "LaserPointer"      # Below scroll → Laser pointer (hold)
-  tilt_left: "Cmd+["                 # Tilt scroll left → Prev tab
-  tilt_right: "Cmd+]"               # Tilt scroll right → Next tab
+# Map macOS button numbers to actions.
+# Left-click (0) and right-click (1) can't be remapped.
+buttons:
+  2: "MiddleClick"          # Middle click (scroll wheel press)
+  3: "Cmd+Z"                # Back thumb -> Undo
+  4: "Cmd+Shift+Z"          # Forward thumb -> Redo
+  5: "Cmd+Space"             # Third thumb -> Spotlight
+  6: "Cmd+Shift+4"          # Top button -> Screenshot
+  7: "LaserPointer"          # Below scroll wheel -> Laser pointer (hold)
+
+# Gesture: hold a button and swipe the mouse in a direction.
+# Set button to -1 to disable gestures entirely.
+# When enabled, the gesture button's direct action (above) is replaced by tap/hold behavior.
+gesture:
+  button: 5                  # Which button triggers gestures (third thumb)
+  click: "Cmd+Tab"           # Tap -> App Switcher
+  hold_left: "Ctrl+Left"    # Hold + swipe left -> Space left (+ haptic)
+  hold_right: "Ctrl+Right"  # Hold + swipe right -> Space right (+ haptic)
+  hold_up: "Ctrl+Down"      # Hold + swipe up -> App Expose
+
+# Horizontal scroll wheel tilt.
+tilt_scroll:
+  left: "Cmd+["             # Tilt left -> Previous tab
+  right: "Cmd+]"            # Tilt right -> Next tab
+
+# Haptic feedback (Logitech HID++ devices only).
+# Device name is a substring match, case-insensitive.
+# haptic:
+#   device: "mx master"
