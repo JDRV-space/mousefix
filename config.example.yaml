@@ -1,0 +1,25 @@
+# MouseFix - MX Master 4 Button Remapper
+# Copy to ~/.config/mousefix/config.yaml
+#
+# Action format:
+#   "Modifier+Key"     - Keyboard shortcut (Cmd, Ctrl, Shift, Opt + any key)
+#   "MiddleClick"      - Pass through middle click
+#   "LaserPointer"     - Show laser pointer circle while held
+#   "MissionControl"   - Trigger Mission Control
+#   "None"             - Disable the button
+#
+# Button numbers may vary by device. Run `mousefix discover` to find yours.
+
+default:
+  button3: "MiddleClick"              # Middle click - keep default
+  button4: "Cmd+Z"                    # Back thumb → Undo
+  button5: "Cmd+Shift+Z"             # Forward thumb → Redo
+  button6: "Cmd+Space"               # Third thumb → Spotlight
+  gesture_click: "Cmd+Tab"           # Gesture tap → App Switcher
+  gesture_hold_left: "Ctrl+Left"     # Gesture + left → Space left (+ haptic)
+  gesture_hold_right: "Ctrl+Right"   # Gesture + right → Space right (+ haptic)
+  gesture_hold_up: "Ctrl+Down"       # Gesture + up → App Exposé
+  top_button: "Cmd+Shift+4"          # Top button → Screenshot
+  scroll_button: "LaserPointer"      # Below scroll → Laser pointer (hold)
+  tilt_left: "Cmd+["                 # Tilt scroll left → Prev tab
+  tilt_right: "Cmd+]"               # Tilt scroll right → Next tab

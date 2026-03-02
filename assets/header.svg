@@ -1,0 +1,105 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 200" fill="none">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0d1117"/>
+      <stop offset="100%" style="stop-color:#161b22"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#58a6ff"/>
+      <stop offset="50%" style="stop-color:#bc8cff"/>
+      <stop offset="100%" style="stop-color:#f778ba"/>
+    </linearGradient>
+    <linearGradient id="glow" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#58a6ff;stop-opacity:0.3"/>
+      <stop offset="100%" style="stop-color:#f778ba;stop-opacity:0.3"/>
+    </linearGradient>
+    <filter id="blur">
+      <feGaussianBlur stdDeviation="20"/>
+    </filter>
+    <filter id="softglow">
+      <feGaussianBlur stdDeviation="2"/>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="800" height="200" fill="url(#bg)" rx="8"/>
+
+  <!-- Animated glow orb behind mouse -->
+  <ellipse cx="160" cy="100" rx="60" ry="40" fill="url(#glow)" filter="url(#blur)">
+    <animate attributeName="rx" values="60;70;60" dur="3s" repeatCount="indefinite"/>
+    <animate attributeName="ry" values="40;50;40" dur="3s" repeatCount="indefinite"/>
+  </ellipse>
+
+  <!-- Mouse icon (simplified MX Master silhouette) -->
+  <g transform="translate(120, 50)">
+    <!-- Body -->
+    <rect x="10" y="8" width="56" height="84" rx="28" fill="none" stroke="url(#accent)" stroke-width="2.5">
+      <animate attributeName="stroke-opacity" values="0.7;1;0.7" dur="3s" repeatCount="indefinite"/>
+    </rect>
+    <!-- Scroll wheel -->
+    <rect x="33" y="22" width="10" height="18" rx="5" fill="none" stroke="#58a6ff" stroke-width="1.8">
+      <animate attributeName="y" values="22;26;22" dur="2s" repeatCount="indefinite"/>
+    </rect>
+    <!-- Center line -->
+    <line x1="38" y1="0" x2="38" y2="8" stroke="#58a6ff" stroke-width="1.5" stroke-opacity="0.4"/>
+    <!-- Thumb button left -->
+    <rect x="0" y="35" width="10" height="16" rx="3" fill="none" stroke="#bc8cff" stroke-width="1.5" stroke-opacity="0.6">
+      <animate attributeName="stroke-opacity" values="0.4;0.8;0.4" dur="2.5s" repeatCount="indefinite"/>
+    </rect>
+    <!-- Top button -->
+    <circle cx="56" cy="30" r="5" fill="none" stroke="#f778ba" stroke-width="1.5" stroke-opacity="0.6">
+      <animate attributeName="stroke-opacity" values="0.3;0.7;0.3" dur="2s" repeatCount="indefinite" begin="0.5s"/>
+    </circle>
+  </g>
+
+  <!-- Title -->
+  <text x="240" y="90" font-family="'SF Mono', 'Fira Code', 'Cascadia Code', monospace" font-size="42" font-weight="700" fill="url(#accent)">
+    MouseFix
+    <animate attributeName="opacity" values="0;1" dur="0.8s" fill="freeze"/>
+  </text>
+
+  <!-- Subtitle with typing animation -->
+  <text x="240" y="120" font-family="'SF Mono', 'Fira Code', 'Cascadia Code', monospace" font-size="14" fill="#8b949e">
+    open-source MX Master remapper for macOS
+    <animate attributeName="opacity" values="0;1" dur="0.6s" begin="0.4s" fill="freeze"/>
+  </text>
+
+  <!-- Animated cursor blink -->
+  <rect x="571" y="108" width="8" height="16" fill="#58a6ff">
+    <animate attributeName="opacity" values="1;0;1" dur="1.2s" repeatCount="indefinite"/>
+  </rect>
+
+  <!-- Feature pills -->
+  <g transform="translate(240, 140)" opacity="0">
+    <animate attributeName="opacity" values="0;1" dur="0.5s" begin="0.8s" fill="freeze"/>
+
+    <!-- Pill: CGEvent -->
+    <rect x="0" y="0" width="80" height="24" rx="12" fill="none" stroke="#30363d" stroke-width="1"/>
+    <text x="40" y="16" font-family="'SF Mono', monospace" font-size="10" fill="#58a6ff" text-anchor="middle">CGEvent</text>
+
+    <!-- Pill: HID++ -->
+    <rect x="90" y="0" width="64" height="24" rx="12" fill="none" stroke="#30363d" stroke-width="1"/>
+    <text x="122" y="16" font-family="'SF Mono', monospace" font-size="10" fill="#bc8cff" text-anchor="middle">HID++</text>
+
+    <!-- Pill: YAML -->
+    <rect x="164" y="0" width="60" height="24" rx="12" fill="none" stroke="#30363d" stroke-width="1"/>
+    <text x="194" y="16" font-family="'SF Mono', monospace" font-size="10" fill="#f778ba" text-anchor="middle">YAML</text>
+
+    <!-- Pill: Swift -->
+    <rect x="234" y="0" width="62" height="24" rx="12" fill="none" stroke="#30363d" stroke-width="1"/>
+    <text x="265" y="16" font-family="'SF Mono', monospace" font-size="10" fill="#7ee787" text-anchor="middle">Swift</text>
+  </g>
+
+  <!-- Animated signal lines from mouse -->
+  <g opacity="0.3">
+    <line x1="196" y1="80" x2="230" y2="80" stroke="#58a6ff" stroke-width="1.5" stroke-dasharray="4,4">
+      <animate attributeName="stroke-dashoffset" values="8;0" dur="1s" repeatCount="indefinite"/>
+    </line>
+    <line x1="196" y1="90" x2="230" y2="90" stroke="#bc8cff" stroke-width="1.5" stroke-dasharray="4,4">
+      <animate attributeName="stroke-dashoffset" values="8;0" dur="1s" repeatCount="indefinite" begin="0.3s"/>
+    </line>
+    <line x1="196" y1="100" x2="230" y2="100" stroke="#f778ba" stroke-width="1.5" stroke-dasharray="4,4">
+      <animate attributeName="stroke-dashoffset" values="8;0" dur="1s" repeatCount="indefinite" begin="0.6s"/>
+    </line>
+  </g>
+</svg>
