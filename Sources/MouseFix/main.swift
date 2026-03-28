@@ -102,8 +102,60 @@ func runDaemon() {
     app.setActivationPolicy(.accessory)
     laser.setup()
 
+    // Menu bar icon
+    setupMenuBar(eventTap: eventTap)
+
     print("[mousefix] Daemon running. Press Ctrl+C to stop.")
     app.run()
+}
+
+// MARK: - Menu Bar
+
+private var statusItem: NSStatusItem?
+private var eventTapRef: EventTap?
+
+func setupMenuBar(eventTap: EventTap) {
+    eventTapRef = eventTap
+    statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
+    statusItem?.button?.title = "🖱"
+
+    let menu = NSMenu()
+
+    let toggleItem = NSMenuItem(title: "Enabled", action: #selector(MenuActions.toggle(_:)), keyEquivalent: "")
+    toggleItem.target = MenuActions.shared
+    toggleItem.state = .on
+    menu.addItem(toggleItem)
+
+    menu.addItem(.separator())
+
+    let quitItem = NSMenuItem(title: "Quit", action: #selector(MenuActions.quit(_:)), keyEquivalent: "q")
+    quitItem.target = MenuActions.shared
+    menu.addItem(quitItem)
+
+    statusItem?.menu = menu
+}
+
+final class MenuActions: NSObject {
+    static let shared = MenuActions()
+
+    @objc func toggle(_ sender: NSMenuItem) {
+        if sender.state == .on {
+            eventTapRef?.stop()
+            sender.state = .off
+            statusItem?.button?.title = "🔇"
+            print("[mousefix] Disabled")
+        } else {
+            _ = eventTapRef?.start()
+            sender.state = .on
+            statusItem?.button?.title = "🖱"
+            print("[mousefix] Enabled")
+        }
+    }
+
+    @objc func quit(_ sender: NSMenuItem) {
+        print("[mousefix] Goodbye.")
+        NSApp.terminate(nil)
+    }
 }
 
 // MARK: - Helpers
