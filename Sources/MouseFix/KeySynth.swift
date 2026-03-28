@@ -112,23 +112,19 @@ enum KeySynth {
 
     /// Send a keyboard event pair (down + up) with modifiers.
     static func sendKeystroke(keyCode: UInt16, flags: CGEventFlags) {
-        let source = CGEventSource(stateID: .hidSystemState)
-
-        guard let keyDown = CGEvent(keyboardEventSource: source, virtualKey: keyCode, keyDown: true),
-              let keyUp = CGEvent(keyboardEventSource: source, virtualKey: keyCode, keyDown: false) else {
+        guard let keyDown = CGEvent(keyboardEventSource: nil, virtualKey: keyCode, keyDown: true),
+              let keyUp = CGEvent(keyboardEventSource: nil, virtualKey: keyCode, keyDown: false) else {
             print("[keysynth] Failed to create keyboard event for keyCode \(keyCode)")
             return
         }
 
         var allFlags = flags
         // Arrow keys (0x7B-0x7E) need numericPad + secondaryFn flags
-        // or macOS won't recognize them for system shortcuts (Spaces, Mission Control)
         if keyCode >= 0x7B && keyCode <= 0x7E {
             allFlags.insert(.maskNumericPad)
             allFlags.insert(.maskSecondaryFn)
         }
-        // Function keys (F1-F15) need secondaryFn flag on newer Macs
-        // where F-keys default to media controls without fn
+        // Function keys (F1-F15) need secondaryFn flag
         let fnKeyCodes: Set<UInt16> = [0x7A, 0x78, 0x63, 0x76, 0x60, 0x61, 0x62, 0x64, 0x65, 0x6D, 0x67, 0x6F, 0x69, 0x6B, 0x71]
         if fnKeyCodes.contains(keyCode) {
             allFlags.insert(.maskSecondaryFn)
