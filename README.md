@@ -68,23 +68,24 @@ These are the out-of-the-box mappings. They work immediately if you have an MX M
 | Middle click | MiddleClick (unchanged) |
 | Back thumb | Cmd+Z (Undo) |
 | Forward thumb | Cmd+Shift+Z (Redo) |
-| Third thumb | Cmd+Space (Spotlight) |
 | Top button | Cmd+Shift+4 (Screenshot) |
+| Third thumb | Gesture button (see below) |
 | Below scroll | LaserPointer (hold to show) |
 
 | Gesture (third thumb) | Action |
 |------------------------|--------|
 | Tap | Cmd+Tab (App Switcher) |
-| Hold + swipe left | Ctrl+Left (Space left + haptic) |
-| Hold + swipe right | Ctrl+Right (Space right + haptic) |
-| Hold + swipe up | Ctrl+Down (App Expose) |
+| Hold + swipe left | Switch to right Space |
+| Hold + swipe right | Switch to left Space |
+| Hold + swipe up | Mission Control |
+| Hold + swipe down | App Expose |
 
 | Tilt Scroll | Action |
 |-------------|--------|
-| Tilt left | Cmd+[ (Previous tab) |
-| Tilt right | Cmd+] (Next tab) |
+| Tilt left | Left arrow (proportional) |
+| Tilt right | Right arrow (proportional) |
 
-> The gesture button (third thumb) has dual behavior: quick tap fires App Switcher, hold+swipe fires directional actions. When gesture mode is enabled for a button, it replaces that button's direct action.
+> The gesture button (third thumb) has dual behavior: quick tap fires App Switcher, hold+swipe fires directional actions — same as a 4-finger trackpad gesture. When gesture mode is enabled for a button, it replaces that button's direct action. Tilt scroll fires proportionally: small scroll = 1 keypress, fast scroll = multiple.
 
 
 ## Customizing
@@ -104,22 +105,23 @@ buttons:
   2: "MiddleClick"          # Middle click
   3: "Cmd+Z"                # Back thumb -> Undo
   4: "Cmd+Shift+Z"          # Forward thumb -> Redo
-  5: "Cmd+Space"             # Third thumb -> Spotlight
-  6: "Cmd+Shift+4"          # Top button -> Screenshot
+  5: "Cmd+Shift+4"          # Top button -> Screenshot
+  6: "Cmd+Space"             # Third thumb -> Spotlight
   7: "LaserPointer"          # Below scroll -> Laser pointer
 
-# Gesture: hold a button and swipe
+# Gesture: hold a button and swipe (like 4-finger trackpad)
 gesture:
-  button: 5                  # Which button triggers gestures
+  button: 6                  # Which button triggers gestures
   click: "Cmd+Tab"           # Tap -> App Switcher
-  hold_left: "Ctrl+Left"    # Swipe left -> Space left
-  hold_right: "Ctrl+Right"  # Swipe right -> Space right
-  hold_up: "Ctrl+Down"      # Swipe up -> Expose
+  hold_left: "Ctrl+Right"   # Swipe left -> Space right
+  hold_right: "Ctrl+Left"   # Swipe right -> Space left
+  hold_up: "MissionControl"  # Swipe up -> Mission Control
+  hold_down: "AppExpose"    # Swipe down -> App Expose
 
-# Horizontal scroll tilt
+# Horizontal scroll tilt (proportional: fast scroll = multiple keypresses)
 tilt_scroll:
-  left: "Cmd+["             # Tilt left -> Previous tab
-  right: "Cmd+]"            # Tilt right -> Next tab
+  left: "Left"              # Tilt left -> Left arrow
+  right: "Right"            # Tilt right -> Right arrow
 ```
 
 ### Using a different mouse
@@ -146,7 +148,9 @@ Then edit your config to use those numbers. Any mouse with extra buttons (3+) wo
 | `"Cmd+Z"` | Any keyboard shortcut. Modifiers: `Cmd`, `Ctrl`, `Shift`, `Opt` |
 | `"MiddleClick"` | Native middle click passthrough |
 | `"LaserPointer"` | Red circle overlay follows cursor while button is held |
-| `"MissionControl"` | Triggers Mission Control (Ctrl+Up) |
+| `"MissionControl"` | Triggers Mission Control (via private CoreDock API) |
+| `"AppExpose"` | Triggers App Expose (current app windows) |
+| `"ShowDesktop"` | Triggers Show Desktop |
 | `"None"` | Disables the button |
 
 ### Supported keys

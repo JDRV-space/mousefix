@@ -66,20 +66,16 @@ final class GestureEngine {
 
             if absX > absY {
                 if deltaX < 0 {
-                    print("[gesture] Swipe LEFT (dX=\(deltaX))")
                     KeySynth.fire(buttonMap.gestureHoldLeft)
                     hapticEngine.fireHaptic()
                 } else {
-                    print("[gesture] Swipe RIGHT (dX=\(deltaX))")
                     KeySynth.fire(buttonMap.gestureHoldRight)
                     hapticEngine.fireHaptic()
                 }
             } else {
                 if deltaY < 0 {
-                    print("[gesture] Swipe UP (dY=\(deltaY))")
                     KeySynth.fire(buttonMap.gestureHoldUp)
                 } else {
-                    print("[gesture] Swipe DOWN (dY=\(deltaY))")
                     KeySynth.fire(buttonMap.gestureHoldDown)
                 }
             }

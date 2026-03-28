@@ -71,24 +71,24 @@ struct Config {
         var map = ButtonMap()
 
         map.buttons = [
-            2: .middleClick,                   // Middle click (button3)
-            3: Action.parse("Cmd+Z"),          // Back thumb (button4) -> Undo
-            4: Action.parse("Cmd+Shift+Z"),    // Forward thumb (button5) -> Redo
-            5: Action.parse("Cmd+Space"),       // Third thumb (button6) -> Spotlight
-            6: Action.parse("Cmd+Shift+4"),    // Top button -> Screenshot
+            2: .middleClick,                   // Middle click
+            3: Action.parse("Cmd+Z"),          // Back thumb -> Undo
+            4: Action.parse("Cmd+Shift+Z"),    // Forward thumb -> Redo
+            5: Action.parse("Cmd+Shift+4"),    // Top button -> Screenshot
+            6: Action.parse("Cmd+Space"),       // Third thumb -> Spotlight
             7: .laserPointer,                  // Below scroll -> Laser pointer
         ]
 
-        // Gesture button: third thumb (button 5) also acts as gesture button.
+        // Gesture button: third thumb (button 6) also acts as gesture button.
         // When gesture is enabled, tap fires gesture_click instead of the
         // button's direct action. Set gesture_button to -1 to disable gestures
         // and use the direct Cmd+Space mapping instead.
-        map.gestureButton = 5
+        map.gestureButton = 6
         map.gestureClick = Action.parse("Cmd+Tab")
-        map.gestureHoldLeft = Action.parse("Ctrl+Left")
-        map.gestureHoldRight = Action.parse("Ctrl+Right")
-        map.gestureHoldUp = Action.parse("Ctrl+Up")
-        map.gestureHoldDown = Action.parse("Ctrl+Down")
+        map.gestureHoldLeft = Action.parse("Ctrl+Right")
+        map.gestureHoldRight = Action.parse("Ctrl+Left")
+        map.gestureHoldUp = .missionControl
+        map.gestureHoldDown = .appExpose
 
         // Tilt scroll
         map.tiltLeft = Action.parse("Cmd+[")

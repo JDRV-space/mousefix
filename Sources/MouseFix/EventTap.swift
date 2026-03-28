@@ -103,11 +103,8 @@ final class EventTap {
             return event
         }
 
-        print("[debug] Button DOWN: \(button), gesture enabled: \(gestureEngine.isEnabled), gesture button: \(gestureEngine.gestureButtonNumber)")
-
         // Check if this is the gesture button.
         if gestureEngine.isEnabled && button == gestureEngine.gestureButtonNumber {
-            print("[debug] Gesture button detected, entering gesture mode")
             gestureEngine.buttonDown(event: event)
             return nil // suppress
         }
