@@ -1,6 +1,10 @@
 import CoreGraphics
 import Foundation
 
+// Private Dock API for triggering Mission Control / Expose / Show Desktop
+@_silgen_name("CoreDockSendNotification")
+func CoreDockSendNotification(_ notification: CFString) -> Void
+
 /// Synthesizes keyboard events from action strings like "Cmd+Z".
 enum KeySynth {
 
@@ -96,7 +100,11 @@ enum KeySynth {
         case .middleClick:
             sendMiddleClick()
         case .missionControl:
-            sendKeystroke(keyCode: 0x7E, flags: .maskControl) // Ctrl+Up
+            CoreDockSendNotification("com.apple.expose.awake" as CFString)
+        case .appExpose:
+            CoreDockSendNotification("com.apple.expose.front.awake" as CFString)
+        case .showDesktop:
+            CoreDockSendNotification("com.apple.showdesktop.awake" as CFString)
         case .laserPointer, .none:
             break
         }
@@ -112,8 +120,22 @@ enum KeySynth {
             return
         }
 
-        keyDown.flags = flags
-        keyUp.flags = flags
+        var allFlags = flags
+        // Arrow keys (0x7B-0x7E) need numericPad + secondaryFn flags
+        // or macOS won't recognize them for system shortcuts (Spaces, Mission Control)
+        if keyCode >= 0x7B && keyCode <= 0x7E {
+            allFlags.insert(.maskNumericPad)
+            allFlags.insert(.maskSecondaryFn)
+        }
+        // Function keys (F1-F15) need secondaryFn flag on newer Macs
+        // where F-keys default to media controls without fn
+        let fnKeyCodes: Set<UInt16> = [0x7A, 0x78, 0x63, 0x76, 0x60, 0x61, 0x62, 0x64, 0x65, 0x6D, 0x67, 0x6F, 0x69, 0x6B, 0x71]
+        if fnKeyCodes.contains(keyCode) {
+            allFlags.insert(.maskSecondaryFn)
+        }
+
+        keyDown.flags = allFlags
+        keyUp.flags = allFlags
 
         keyDown.post(tap: .cghidEventTap)
         keyUp.post(tap: .cghidEventTap)

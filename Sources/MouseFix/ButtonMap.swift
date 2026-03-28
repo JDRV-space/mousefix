@@ -7,6 +7,8 @@ enum Action {
     case middleClick
     case laserPointer
     case missionControl
+    case appExpose
+    case showDesktop
     case none
 
     /// Parse an action string like "Cmd+Z", "MiddleClick", "LaserPointer".
@@ -18,6 +20,10 @@ enum Action {
             return .laserPointer
         case "MissionControl":
             return .missionControl
+        case "AppExpose":
+            return .appExpose
+        case "ShowDesktop":
+            return .showDesktop
         case "None", "":
             return .none
         default:
@@ -34,6 +40,8 @@ extension Action: Equatable {
         case (.middleClick, .middleClick),
              (.laserPointer, .laserPointer),
              (.missionControl, .missionControl),
+             (.appExpose, .appExpose),
+             (.showDesktop, .showDesktop),
              (.none, .none):
             return true
         default:
@@ -54,6 +62,7 @@ struct ButtonMap {
     var gestureHoldLeft: Action = .none
     var gestureHoldRight: Action = .none
     var gestureHoldUp: Action = .none
+    var gestureHoldDown: Action = .none
 
     /// Tilt scroll actions.
     var tiltLeft: Action = .none

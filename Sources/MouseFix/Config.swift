@@ -45,6 +45,7 @@ struct Config {
             if let v = gestureDict["hold_left"] as? String { map.gestureHoldLeft = Action.parse(v) }
             if let v = gestureDict["hold_right"] as? String { map.gestureHoldRight = Action.parse(v) }
             if let v = gestureDict["hold_up"] as? String { map.gestureHoldUp = Action.parse(v) }
+            if let v = gestureDict["hold_down"] as? String { map.gestureHoldDown = Action.parse(v) }
         }
 
         // Parse tilt scroll config.
@@ -86,7 +87,8 @@ struct Config {
         map.gestureClick = Action.parse("Cmd+Tab")
         map.gestureHoldLeft = Action.parse("Ctrl+Left")
         map.gestureHoldRight = Action.parse("Ctrl+Right")
-        map.gestureHoldUp = Action.parse("Ctrl+Down")
+        map.gestureHoldUp = Action.parse("Ctrl+Up")
+        map.gestureHoldDown = Action.parse("Ctrl+Down")
 
         // Tilt scroll
         map.tiltLeft = Action.parse("Cmd+[")

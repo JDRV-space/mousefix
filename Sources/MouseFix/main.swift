@@ -140,6 +140,7 @@ func printMappings(_ map: ButtonMap) {
         print("    hold+left  -> \(describeAction(map.gestureHoldLeft))")
         print("    hold+right -> \(describeAction(map.gestureHoldRight))")
         print("    hold+up    -> \(describeAction(map.gestureHoldUp))")
+        print("    hold+down  -> \(describeAction(map.gestureHoldDown))")
     }
 
     // Print tilt scroll.
@@ -166,6 +167,10 @@ func describeAction(_ action: Action) -> String {
         return "LaserPointer"
     case .missionControl:
         return "MissionControl"
+    case .appExpose:
+        return "AppExpose"
+    case .showDesktop:
+        return "ShowDesktop"
     case .none:
         return "(none)"
     }
