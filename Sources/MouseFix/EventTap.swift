@@ -172,17 +172,13 @@ final class EventTap {
             return event
         }
 
-        // Debounce
-        let now = mach_absolute_time()
-        if now - lastTiltTime < EventTap.tiltDebounceNs {
-            return nil // suppress during debounce
-        }
-        lastTiltTime = now
+        // Proportional: 1 arrow per 30 delta units, minimum 1
+        let absDelta = abs(Int(horizontal))
+        let repeats = max(1, absDelta / 30)
+        let action = horizontal < 0 ? buttonMap.tiltLeft : buttonMap.tiltRight
 
-        if horizontal < 0 {
-            KeySynth.fire(buttonMap.tiltLeft)
-        } else {
-            KeySynth.fire(buttonMap.tiltRight)
+        for _ in 0..<repeats {
+            KeySynth.fire(action)
         }
 
         return nil // suppress original tilt
