@@ -17,6 +17,14 @@ Built for the MX Master 4, works with any multi-button mouse.
 
 ---
 
+## Why
+
+Logi Options+ installs background daemons that eat 30-70% CPU, phone home to Logitech servers, and run unauthorized tasks you never asked for. Uninstalling it is a multi-step process because it buries LaunchDaemons, LaunchAgents, and updaters deep in your system.
+
+Your mouse works fine without it. macOS has native HID drivers. The only thing you lose is button remapping and gestures.
+
+MouseFix gives that back in ~600 lines of Swift. One binary, one YAML config file, zero network calls. You own every line of code and can see exactly what it does. No account, no cloud, no telemetry, no updater daemon running at 3am.
+
 ## Features
 
 | Feature | Description |
