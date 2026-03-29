@@ -28,10 +28,16 @@ struct Config {
         var map = ButtonMap()
 
         // Parse button mappings: "buttons" is a dict of number -> action string.
-        if let buttonsDict = dict["buttons"] as? [String: String] {
-            for (key, value) in buttonsDict {
-                if let num = Int64(key) {
-                    map.buttons[num] = Action.parse(value)
+        // Yams parses bare integer keys (e.g. 3:) as Int, not String.
+        if let buttonsRaw = dict["buttons"] as? [AnyHashable: Any] {
+            for (key, value) in buttonsRaw {
+                let num: Int64?
+                if let intKey = key as? Int { num = Int64(intKey) }
+                else if let strKey = key as? String { num = Int64(strKey) }
+                else { num = nil }
+
+                if let num = num, let actionStr = value as? String {
+                    map.buttons[num] = Action.parse(actionStr)
                 }
             }
         }
@@ -91,8 +97,8 @@ struct Config {
         map.gestureHoldDown = .appExpose
 
         // Tilt scroll
-        map.tiltLeft = Action.parse("Cmd+[")
-        map.tiltRight = Action.parse("Cmd+]")
+        map.tiltLeft = Action.parse("Left")
+        map.tiltRight = Action.parse("Right")
 
         return map
     }

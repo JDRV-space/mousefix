@@ -12,10 +12,6 @@ final class EventTap {
     /// Whether we're in discovery mode (log events instead of remapping).
     var discoverMode = false
 
-    /// Debounce tracking for tilt scroll.
-    private var lastTiltTime: UInt64 = 0
-    private static let tiltDebounceNs: UInt64 = 80_000_000 // 80ms
-
     init(buttonMap: ButtonMap, gestureEngine: GestureEngine, laserPointer: LaserPointer) {
         self.buttonMap = buttonMap
         self.gestureEngine = gestureEngine
@@ -191,12 +187,12 @@ private func eventTapCallback(
     event: CGEvent,
     userInfo: UnsafeMutableRawPointer?
 ) -> Unmanaged<CGEvent>? {
-    guard let userInfo = userInfo else { return Unmanaged.passRetained(event) }
+    guard let userInfo = userInfo else { return Unmanaged.passUnretained(event) }
 
     let tap = Unmanaged<EventTap>.fromOpaque(userInfo).takeUnretainedValue()
 
     if let result = tap.handleEvent(type: type, event: event) {
-        return Unmanaged.passRetained(result)
+        return Unmanaged.passUnretained(result)
     }
     return nil // suppress event
 }

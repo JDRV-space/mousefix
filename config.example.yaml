@@ -9,6 +9,8 @@
 #   "MiddleClick"    native middle click
 #   "LaserPointer"   laser pointer circle while held
 #   "MissionControl" trigger Mission Control
+#   "AppExpose"      trigger App Expose (current app windows)
+#   "ShowDesktop"    trigger Show Desktop
 #   "None"           disable the button
 
 # Map macOS button numbers to actions.
@@ -34,8 +36,8 @@ gesture:
 
 # Horizontal scroll wheel tilt.
 tilt_scroll:
-  left: "Cmd+["             # Tilt left -> Previous tab
-  right: "Cmd+]"            # Tilt right -> Next tab
+  left: "Left"              # Tilt left -> Left arrow (proportional)
+  right: "Right"            # Tilt right -> Right arrow (proportional)
 
 # Haptic feedback (Logitech HID++ devices only).
 # Device name is a substring match, case-insensitive.

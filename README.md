@@ -23,7 +23,7 @@ Built for the MX Master 4, works with any multi-button mouse.
 |---------|-------------|
 | **Button Remapping** | Map any mouse button to any keyboard shortcut |
 | **Gesture Engine** | Hold a button + swipe mouse for directional actions (Spaces, Expose) |
-| **Tilt Scroll** | Horizontal scroll wheel tilt fires tab switching |
+| **Tilt Scroll** | Horizontal scroll wheel tilt fires configurable actions (proportional to scroll speed) |
 | **Laser Pointer** | Hold a button to project a colored circle on screen |
 | **Haptic Feedback** | Logitech HID++ protocol sends vibration pulses to the mouse |
 | **Discovery Mode** | `mousefix discover` shows what number each button reports |
@@ -203,11 +203,11 @@ Sources/MouseFix/
 
 ## Roadmap
 
+- [x] Menu bar icon with enable/disable toggle
+- [x] LaunchAgent for auto-start on login
 - [ ] Per-app profiles (different mappings per frontmost app)
 - [ ] `mousefix edit` opens config in $EDITOR
-- [ ] LaunchAgent for auto-start on login
 - [ ] Homebrew formula
-- [ ] Optional menu bar icon
 
 
 ## License
