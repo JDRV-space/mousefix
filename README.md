@@ -47,7 +47,7 @@ git clone https://github.com/JDRV-space/mousefix.git
 cd mousefix
 swift build -c release
 
-# Install as .app bundle (recommended — required for Accessibility permissions)
+# Install as .app bundle (recommended  - required for Accessibility permissions)
 mkdir -p /Applications/MouseFix.app/Contents/MacOS
 cp .build/release/MouseFix /Applications/MouseFix.app/Contents/MacOS/MouseFix
 ```
@@ -92,7 +92,7 @@ These are the out-of-the-box mappings. They work immediately if you have an MX M
 | Tilt left | Left arrow (proportional) |
 | Tilt right | Right arrow (proportional) |
 
-> The gesture button (third thumb) has dual behavior: quick tap fires App Switcher, hold+swipe fires directional actions — same as a 4-finger trackpad gesture. When gesture mode is enabled for a button, it replaces that button's direct action. Tilt scroll fires proportionally: small scroll = 1 keypress, fast scroll = multiple.
+> The gesture button (third thumb) has dual behavior: quick tap fires App Switcher, hold+swipe fires directional actions  - same as a 4-finger trackpad gesture. When gesture mode is enabled for a button, it replaces that button's direct action. Tilt scroll fires proportionally: small scroll = 1 keypress, fast scroll = multiple.
 
 
 ## Customizing
