@@ -38,26 +38,25 @@ Built for the MX Master 4, works with any multi-button mouse.
 git clone https://github.com/JDRV-space/mousefix.git
 cd mousefix
 swift build -c release
-cp .build/release/MouseFix /usr/local/bin/mousefix
+
+# Install as .app bundle (recommended — required for Accessibility permissions)
+mkdir -p /Applications/MouseFix.app/Contents/MacOS
+cp .build/release/MouseFix /Applications/MouseFix.app/Contents/MacOS/MouseFix
 ```
 
 ### 2. Permissions
 
-MouseFix needs two macOS permissions to intercept and remap mouse events:
+MouseFix needs Accessibility permission to intercept and remap mouse events:
 
-**System Settings > Privacy & Security > Accessibility**
-Add your terminal app (Terminal, iTerm, Warp, etc.) or the MouseFix binary.
-
-**System Settings > Privacy & Security > Input Monitoring**
-Same as above. macOS will prompt you the first time you run MouseFix.
+**System Settings > Privacy & Security > Accessibility** → click **+** → add **MouseFix** from /Applications.
 
 ### 3. Run
 
 ```bash
-mousefix
+/Applications/MouseFix.app/Contents/MacOS/MouseFix
 ```
 
-That's it. Your MX Master 4 buttons are now remapped with the defaults below. Stop with `Ctrl+C`.
+A 🖱 icon appears in the menu bar. Click it to enable/disable or quit. Your MX Master 4 buttons are now remapped with the defaults below.
 
 ### Default Mappings (MX Master 4)
 
@@ -173,7 +172,7 @@ mousefix version      Show version
 
 ```
 Sources/MouseFix/
-  main.swift            CLI entry, arg parsing, daemon loop, signal handling
+  main.swift            CLI entry, arg parsing, daemon loop, menu bar icon, signal handling
   EventTap.swift        CGEvent tap - intercepts otherMouse + scrollWheel events
   KeySynth.swift        Parses "Cmd+Z" strings, synthesizes CGEvent keystrokes
   GestureEngine.swift   Gesture button hold + mouse delta -> directional actions
@@ -189,7 +188,7 @@ Sources/MouseFix/
 2. Button number is looked up in the config to find the mapped action
 3. Original mouse event is suppressed and a synthesized keyboard event is posted
 4. **Gesture detection**: when the gesture button is held, mouse deltas accumulate until a 50px threshold triggers a directional action
-5. **Tilt scroll**: horizontal scrollWheel delta fires tab-switch keystrokes with 80ms debounce
+5. **Tilt scroll**: horizontal scrollWheel delta fires proportional keypresses (1 per 30 delta units)
 6. **Haptic**: HID++ short report sent to the mouse via IOKit on Space-switch gestures
 7. **Laser pointer**: borderless NSWindow at `.screenSaver` level tracks cursor position
 
@@ -199,15 +198,6 @@ Sources/MouseFix/
 - macOS 13+ (Ventura or later)
 - Swift 5.9+
 - Any multi-button mouse (MX Master 4 defaults built-in, haptic feedback Logitech-only)
-
-
-## Roadmap
-
-- [x] Menu bar icon with enable/disable toggle
-- [x] LaunchAgent for auto-start on login
-- [ ] Per-app profiles (different mappings per frontmost app)
-- [ ] `mousefix edit` opens config in $EDITOR
-- [ ] Homebrew formula
 
 
 ## License
