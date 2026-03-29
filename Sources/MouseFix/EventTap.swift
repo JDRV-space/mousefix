@@ -187,12 +187,12 @@ private func eventTapCallback(
     event: CGEvent,
     userInfo: UnsafeMutableRawPointer?
 ) -> Unmanaged<CGEvent>? {
-    guard let userInfo = userInfo else { return Unmanaged.passUnretained(event) }
+    guard let userInfo = userInfo else { return Unmanaged.passRetained(event) }
 
     let tap = Unmanaged<EventTap>.fromOpaque(userInfo).takeUnretainedValue()
 
     if let result = tap.handleEvent(type: type, event: event) {
-        return Unmanaged.passUnretained(result)
+        return Unmanaged.passRetained(result)
     }
     return nil // suppress event
 }
