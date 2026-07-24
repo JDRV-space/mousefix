@@ -1,0 +1,17 @@
+name: Build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  swift:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - run: swift build --only-use-versions-from-resolved-file
+      - run: swift run --only-use-versions-from-resolved-file MouseFixCoreChecks
