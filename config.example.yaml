@@ -1,47 +1,47 @@
 # MouseFix config
 # Copy to ~/.config/mousefix/config.yaml
 #
-# Button numbers: run the installed binary with `discover` to see what each button reports.
-# MX Master 4 defaults are pre-filled below.
+# Run `MouseFix discover` if your mouse reports different button numbers.
+#
+# A modifier by itself is held until that mouse button is released. This lets
+# the mouse button combine with a physical keyboard key, such as Cmd + R.
 #
 # Actions:
-#   "Cmd+Z"          any keyboard shortcut (Cmd, Ctrl, Shift, Opt + key)
+#   "Cmd", "Shift"   held modifier
+#   "Cmd+Z"          keyboard shortcut
 #   "MiddleClick"    native middle click
 #   "LaserPointer"   laser pointer circle while held
-#   "MissionControl" trigger Mission Control
-#   "AppExpose"      trigger App Expose (current app windows)
-#   "ShowDesktop"    trigger Show Desktop
-#   "None"           disable the button
+#   "MissionControl" Mission Control
+#   "AppExpose"      current application windows
+#   "ShowDesktop"    Show Desktop
+#   "None"           disable direct button action
 
-# Map macOS button numbers to actions.
-# Left-click (0) and right-click (1) can't be remapped.
 buttons:
-  2: "MiddleClick"          # Middle click (scroll wheel press)
-  3: "Cmd+Z"                # Back thumb -> Undo
-  4: "Cmd+Shift+Z"          # Forward thumb -> Redo
-  5: "Cmd+Shift+4"           # Top button -> Screenshot
-  6: "Cmd+Space"             # Third thumb -> Spotlight
-  7: "LaserPointer"          # Below scroll wheel -> Laser pointer (hold)
+  2: "MiddleClick"          # Scroll wheel press
+  3: "Cmd+Z"                # Undo
+  4: "Cmd"                  # Hold Command and combine with keyboard input
+  5: "Cmd+Shift+4"          # Screenshot
+  6: "None"                 # Reserved for the gesture engine below
 
-# Gesture: hold a button and swipe the mouse in a direction.
-# Set button to -1 to disable gestures entirely.
-# When enabled, the gesture button's direct action (above) is replaced by tap/hold behavior.
+# Tap or hold button 6 while moving the mouse.
 gesture:
-  button: 6                  # Which button triggers gestures (third thumb)
-  click: "Cmd+Tab"           # Tap -> App Switcher
-  hold_left: "Ctrl+Right"   # Hold + swipe left -> Space right
-  hold_right: "Ctrl+Left"   # Hold + swipe right -> Space left
-  hold_up: "MissionControl"  # Hold + swipe up -> Mission Control
-  hold_down: "AppExpose"    # Hold + swipe down -> App Expose
+  button: 6
+  click: "Cmd+Tab"
+  hold_left: "Ctrl+Right"
+  hold_right: "Ctrl+Left"
+  hold_up: "MissionControl"
+  hold_down: "AppExpose"
 
-# Horizontal scroll wheel tilt.
+# The side wheel sends plain left/right arrow presses.
 tilt_scroll:
-  left: "Left"              # Tilt left -> Left arrow (proportional)
-  right: "Right"            # Tilt right -> Right arrow (proportional)
+  left: "Left"
+  right: "Right"
 
-# Haptic feedback is Logitech HID++ only and best effort.
-# The current implementation uses a hardcoded feature index after a feature query.
-# Device name is a substring match, case-insensitive. Use a non-matching value
-# if you do not want MouseFix to send haptic reports.
-# haptic:
-#   device: "mx master"
+# Only events from the configured Logitech mouse are reshaped. Apple trackpad
+# events and events from unrelated devices pass through unchanged.
+scroll:
+  enabled: true
+  device: "mx master"
+  response: 0.68
+  speed: 1.0
+  inertia: 0.89

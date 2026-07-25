@@ -4,6 +4,7 @@ import Foundation
 /// Actions that can be triggered by a button or gesture.
 public enum Action {
     case keystroke(modifiers: CGEventFlags, keyCode: UInt16)
+    case heldModifier(CGEventFlags)
     case middleClick
     case laserPointer
     case missionControl
@@ -13,7 +14,15 @@ public enum Action {
 
     /// Parse an action string like "Cmd+Z", "MiddleClick", "LaserPointer".
     public static func parse(_ string: String) -> Action {
-        switch string {
+        switch string.trimmingCharacters(in: .whitespacesAndNewlines) {
+        case "Cmd", "Command":
+            return .heldModifier(.maskCommand)
+        case "Shift":
+            return .heldModifier(.maskShift)
+        case "Ctrl", "Control":
+            return .heldModifier(.maskControl)
+        case "Opt", "Option", "Alt":
+            return .heldModifier(.maskAlternate)
         case "MiddleClick":
             return .middleClick
         case "LaserPointer":
@@ -37,6 +46,8 @@ extension Action: Equatable {
         switch (lhs, rhs) {
         case (.keystroke(let m1, let k1), .keystroke(let m2, let k2)):
             return m1.rawValue == m2.rawValue && k1 == k2
+        case (.heldModifier(let m1), .heldModifier(let m2)):
+            return m1.rawValue == m2.rawValue
         case (.middleClick, .middleClick),
              (.laserPointer, .laserPointer),
              (.missionControl, .missionControl),
@@ -68,8 +79,8 @@ public struct ButtonMap {
     public var tiltLeft: Action = .none
     public var tiltRight: Action = .none
 
-    /// Haptic device name filter (substring match). Default matches any MX Master.
-    public var hapticDeviceName: String = "mx master"
+    /// Device-scoped smooth scrolling.
+    public var smoothScroll = SmoothScrollSettings()
 
     public init() {}
 

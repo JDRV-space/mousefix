@@ -10,10 +10,12 @@ private func expect(_ condition: @autoclosure () -> Bool, _ message: String) {
     }
 }
 
-private func parsesButtonGestureTiltAndHapticConfig() {
+private func parsesButtonGestureTiltAndScrollConfig() {
     let yaml = """
     buttons:
       3: "Cmd+Z"
+      4: "Cmd"
+      6: "Shift"
       "8": "LaserPointer"
 
     gesture:
@@ -28,13 +30,19 @@ private func parsesButtonGestureTiltAndHapticConfig() {
       left: "Left"
       right: "Right"
 
-    haptic:
+    scroll:
+      enabled: true
       device: "MX Master"
+      response: 0.7
+      speed: 1.2
+      inertia: 0.9
     """
 
     let map = Config.parse(yaml: yaml).defaultProfile
 
     assertKeystroke(map.buttons[3], keyCode: 0x06, modifiers: .maskCommand)
+    expect(map.buttons[4] == .heldModifier(.maskCommand), "button 4 should hold Command")
+    expect(map.buttons[6] == .heldModifier(.maskShift), "button 6 should hold Shift")
     expect(map.buttons[8] == .laserPointer, "button 8 should parse as LaserPointer")
     expect(map.gestureButton == 6, "gesture button should parse as 6")
     assertKeystroke(map.gestureClick, keyCode: 0x30, modifiers: .maskCommand)
@@ -44,7 +52,11 @@ private func parsesButtonGestureTiltAndHapticConfig() {
     expect(map.gestureHoldDown == .appExpose, "hold_down should parse as AppExpose")
     assertKeystroke(map.tiltLeft, keyCode: 0x7B, modifiers: [])
     assertKeystroke(map.tiltRight, keyCode: 0x7C, modifiers: [])
-    expect(map.hapticDeviceName == "MX Master", "haptic device should parse")
+    expect(map.smoothScroll.enabled, "smooth scrolling should be enabled")
+    expect(map.smoothScroll.deviceName == "MX Master", "scroll device should parse")
+    expect(map.smoothScroll.response == 0.7, "scroll response should parse")
+    expect(map.smoothScroll.speed == 1.2, "scroll speed should parse")
+    expect(map.smoothScroll.inertia == 0.9, "scroll inertia should parse")
 }
 
 private func invalidYamlFallsBackToMxMasterDefaults() {
@@ -81,7 +93,7 @@ private func assertKeystroke(
     )
 }
 
-parsesButtonGestureTiltAndHapticConfig()
+parsesButtonGestureTiltAndScrollConfig()
 invalidYamlFallsBackToMxMasterDefaults()
 unknownActionParsesToNone()
 

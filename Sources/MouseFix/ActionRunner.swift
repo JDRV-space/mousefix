@@ -8,10 +8,14 @@ private func CoreDockSendNotification(_ notification: CFString) -> Void
 
 /// Runs parsed actions by posting local input events or Dock notifications.
 enum ActionRunner {
+    static let syntheticMarker: Int64 = 0x4D4F5553454B4559
+
     static func fire(_ action: Action) {
         switch action {
         case .keystroke(let modifiers, let keyCode):
             sendKeystroke(keyCode: keyCode, flags: modifiers)
+        case .heldModifier:
+            break
         case .middleClick:
             sendMiddleClick()
         case .missionControl:
@@ -25,17 +29,37 @@ enum ActionRunner {
         }
     }
 
-    private static func sendKeystroke(keyCode: UInt16, flags: CGEventFlags) {
+    static func sendKeystroke(keyCode: UInt16, flags: CGEventFlags) {
         guard let keyDown = CGEvent(keyboardEventSource: nil, virtualKey: keyCode, keyDown: true),
               let keyUp = CGEvent(keyboardEventSource: nil, virtualKey: keyCode, keyDown: false) else {
             print("[action-runner] Failed to create keyboard event for keyCode \(keyCode)")
             return
         }
 
-        var allFlags = flags
+        let allFlags = effectiveFlags(for: keyCode, baseFlags: flags)
+        keyDown.flags = allFlags
+        keyUp.flags = allFlags
+        markSynthetic(keyDown)
+        markSynthetic(keyUp)
+
+        keyDown.post(tap: .cghidEventTap)
+        keyUp.post(tap: .cghidEventTap)
+    }
+
+    static func effectiveFlags(
+        for keyCode: UInt16,
+        baseFlags: CGEventFlags
+    ) -> CGEventFlags {
+        var allFlags = baseFlags
+
+        // Plain arrows only need numericPad. macOS global shortcuts such as
+        // Control+Left/Right expect the function flag found on physical
+        // modified-arrow events.
         if keyCode >= 0x7B && keyCode <= 0x7E {
             allFlags.insert(.maskNumericPad)
-            allFlags.insert(.maskSecondaryFn)
+            if !baseFlags.isEmpty {
+                allFlags.insert(.maskSecondaryFn)
+            }
         }
 
         let fnKeyCodes: Set<UInt16> = [
@@ -45,12 +69,7 @@ enum ActionRunner {
         if fnKeyCodes.contains(keyCode) {
             allFlags.insert(.maskSecondaryFn)
         }
-
-        keyDown.flags = allFlags
-        keyUp.flags = allFlags
-
-        keyDown.post(tap: .cghidEventTap)
-        keyUp.post(tap: .cghidEventTap)
+        return allFlags
     }
 
     private static func sendMiddleClick() {
@@ -73,7 +92,17 @@ enum ActionRunner {
             return
         }
 
+        markSynthetic(down)
+        markSynthetic(up)
         down.post(tap: .cghidEventTap)
         up.post(tap: .cghidEventTap)
+    }
+
+    static func markSynthetic(_ event: CGEvent) {
+        event.setIntegerValueField(.eventSourceUserData, value: syntheticMarker)
+    }
+
+    static func isSynthetic(_ event: CGEvent) -> Bool {
+        event.getIntegerValueField(.eventSourceUserData) == syntheticMarker
     }
 }

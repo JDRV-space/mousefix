@@ -1,31 +1,40 @@
 # MouseFix
 
-MouseFix is a small macOS tool for remapping extra mouse buttons from a YAML file.
+MouseFix is a local macOS input remapper built for the Logitech MX Master 4.
+It keeps trackpad input native while adding mouse-specific smooth scrolling,
+button mappings, gestures, side-wheel navigation, and a laser overlay.
 
-I wrote it for an MX Master 4 because I wanted button remapping without keeping Logitech's app running. It is not a full mouse control panel. You build it yourself, grant macOS permissions, and edit the config when your mouse reports different button numbers.
+## Default Behavior
 
-## What It Does
+- Scroll wheel press: native middle click.
+- Button `3`: `Cmd+Z`.
+- Button `4`: hold Command. It combines with the physical keyboard, so holding
+  the mouse button and pressing `R` sends `Cmd+R`.
+- Button `5`: `Cmd+Shift+4` screenshot.
+- Button `6`: tap for `Cmd+Tab`; hold and move left/right for the adjacent
+  Space; hold and move up/down for Mission Control or App Expose.
+- Side wheel: plain left/right arrow presses.
+- Button below the scroll wheel: laser overlay while held. This uses the
+  Logitech HID++ control reported as `0x00C4`.
+- Main wheel: continuous, phased scrolling only for the configured Logitech
+  mouse. Apple trackpad events pass through unchanged.
 
-- Intercepts extra mouse buttons and horizontal scroll-wheel tilt with a `CGEvent` tap.
-- Maps those inputs to keyboard shortcuts, middle click, a laser-pointer overlay, Mission Control, App Expose, or Show Desktop.
-- Supports one hold-and-swipe gesture button.
-- Tries to send Logitech HID++ haptic pulses for left/right gesture actions.
+Button numbers can differ by mouse, connection mode, or firmware. Use discovery
+mode before changing a mapping.
 
 ## Build And Install
 
 ```bash
 git clone https://github.com/JDRV-space/mousefix.git
 cd mousefix
-swift build -c release
+swift build -c release --only-use-versions-from-resolved-file
 
 mkdir -p /Applications/MouseFix.app/Contents/MacOS
 cp .build/release/MouseFix /Applications/MouseFix.app/Contents/MacOS/MouseFix
 ```
 
-`Package.resolved` pins the reviewed dependency revision. Use
-`swift build --only-use-versions-from-resolved-file` in reproducible builds.
-
-This creates a minimal unsigned app bundle. There is no signed or notarized app release in this repo.
+This creates a minimal unsigned app bundle. The repository does not publish a
+signed or notarized release.
 
 Run it:
 
@@ -39,25 +48,13 @@ Run discovery mode:
 /Applications/MouseFix.app/Contents/MacOS/MouseFix discover
 ```
 
-If you put the binary on your `PATH` as `mousefix`, use `mousefix` instead of the full path.
-
 ## Permissions
 
-MouseFix needs Accessibility permission or the event tap will not start.
+MouseFix needs Accessibility permission or its event tap cannot start.
 
-Open **System Settings > Privacy & Security > Accessibility**, click **+**, and add `/Applications/MouseFix.app`.
-
-If macOS also asks for Input Monitoring, allow it there too. The permission is tied to the app or binary path, so running from `.build/release/MouseFix` may require a separate approval.
-
-## Local Input And Security Caveats
-
-MouseFix runs locally and posts synthetic keyboard and mouse events through macOS APIs after you grant Accessibility permission. Treat the config file as trusted input. Do not run mappings copied from someone else without reading them, because a mapping can trigger shortcuts in the foreground app.
-
-MouseFix does not install a privileged helper, does not bypass macOS privacy prompts, and does not provide remote control. Discovery mode logs local mouse button numbers to stdout.
-
-`MissionControl`, `AppExpose`, and `ShowDesktop` use private CoreDock notifications. They are isolated in the executable runtime code, but they are still private macOS behavior and can stop working after an OS update.
-
-Haptic feedback is experimental Logitech HID++ output. The current implementation sends a feature query, then uses a hardcoded feature index seen on common MX Master firmware instead of reading and validating the HID++ response. If you do not want MouseFix to send haptic reports, set `haptic.device` to a string that does not match any connected Logitech device.
+Open **System Settings > Privacy & Security > Accessibility**, click **+**, and
+add `/Applications/MouseFix.app`. If macOS requests Input Monitoring, allow the
+same app there. Permissions are tied to the app or binary path.
 
 ## Config
 
@@ -67,25 +64,22 @@ MouseFix reads:
 ~/.config/mousefix/config.yaml
 ```
 
-If that file is missing, it uses the built-in MX Master 4 defaults.
-
-To customize:
+If the file is missing, the verified MX Master defaults above are used.
 
 ```bash
 mkdir -p ~/.config/mousefix
 cp config.example.yaml ~/.config/mousefix/config.yaml
 ```
 
-Edit `~/.config/mousefix/config.yaml`:
+Example:
 
 ```yaml
 buttons:
   2: "MiddleClick"
   3: "Cmd+Z"
-  4: "Cmd+Shift+Z"
+  4: "Cmd"
   5: "Cmd+Shift+4"
-  6: "Cmd+Space"
-  7: "LaserPointer"
+  6: "None"
 
 gesture:
   button: 6
@@ -98,119 +92,109 @@ gesture:
 tilt_scroll:
   left: "Left"
   right: "Right"
+
+scroll:
+  enabled: true
+  device: "mx master"
+  response: 0.68
+  speed: 1.0
+  inertia: 0.89
 ```
 
-Left click (`0`) and right click (`1`) are not meant to be remapped. When `gesture.button` is enabled, that button uses the gesture tap/hold behavior instead of its direct `buttons` action.
+A modifier without a key, such as `Cmd`, `Shift`, `Ctrl`, or `Opt`, remains
+active until the mapped mouse button is released. Modifiers can be combined
+with physical keyboard and primary mouse input.
 
-### Action Names
+Supported shortcut keys include `A-Z`, `0-9`, punctuation, arrow keys,
+`F1-F15`, `Space`, `Tab`, `Return`, `Escape`, `Delete`, `Home`, `End`,
+`PageUp`, and `PageDown`.
 
-- Keyboard shortcuts: `"Cmd+Z"`, `"Cmd+Shift+4"`, `"Ctrl+Right"`, etc.
-- Modifiers: `Cmd`, `Ctrl`, `Shift`, `Opt`.
-- Special actions: `MiddleClick`, `LaserPointer`, `MissionControl`, `AppExpose`, `ShowDesktop`, `None`.
-- Supported keys: `A-Z`, `0-9`, `[ ] ; ' , . / \ - =`, `Left`, `Right`, `Up`, `Down`, `F1-F15`, `Space`, `Tab`, `Return`, `Escape`, `Delete`, `Home`, `End`, `PageUp`, `PageDown`.
+Scroll settings are bounded at parse time:
 
-## Default Mappings
+- `response`: `0...1`
+- `speed`: `0.1...4`
+- `inertia`: `0...1`
 
-These defaults are for an MX Master 4 connected over Bluetooth. Button numbers can change with a different mouse, receiver, connection mode, or firmware.
+## Security And Privacy
 
-- Button `2`: middle click.
-- Button `3`: `Cmd+Z`.
-- Button `4`: `Cmd+Shift+Z`.
-- Button `5`: `Cmd+Shift+4`.
-- Button `6`: gesture button. Tap sends `Cmd+Tab`; hold and move left/right sends `Ctrl+Right` or `Ctrl+Left`; hold and move up/down sends `MissionControl` or `AppExpose`.
-- Button `7`: laser pointer while held.
-- Horizontal tilt left/right: left/right arrow keypresses, repeated based on scroll delta.
+- MouseFix has no network client, telemetry, updater, login item, privileged
+  helper, credential storage, or remote-control interface.
+- The event tap receives key events so an active mouse-held modifier can be
+  merged into them. The runtime does not inspect key codes or log, store, or
+  transmit keyboard input.
+- Discovery mode prints mouse button numbers and scroll metadata to stdout. It
+  does not print keyboard input.
+- The laser control uses temporary Logitech HID++ diversion. MouseFix reads the
+  original diversion state and restores it when disabled or shut down. It does
+  not write persistent firmware configuration.
+- Haptic output is disabled. The program will not send a haptic report until
+  verified runtime feature discovery exists. This avoids sending commands to a
+  guessed HID feature index.
+- The event callback returns borrowed CoreGraphics events without retaining
+  them, preventing an input-rate memory leak.
+- `Package.resolved` pins every Swift package dependency. CI builds only from
+  that resolved file and runs with read-only repository permissions.
 
-To find your mouse's numbers:
+Treat the YAML file as trusted local configuration. Mappings trigger shortcuts
+in the foreground application.
+
+MouseFix uses two private macOS interfaces. CoreDock notifications trigger
+Mission Control, App Expose, and Show Desktop. A weakly linked HID event bridge
+identifies which physical device produced a scroll event. Either behavior may
+change in a future macOS release. If sender identification is unavailable,
+MouseFix leaves the scroll event unchanged.
+
+## Validation
 
 ```bash
-/Applications/MouseFix.app/Contents/MacOS/MouseFix discover
+swift build --only-use-versions-from-resolved-file
+swift run --only-use-versions-from-resolved-file MouseFixCoreChecks
+swift test --only-use-versions-from-resolved-file
+swift build -c release --only-use-versions-from-resolved-file
 ```
 
-Press each button. Discovery output looks like:
-
-```text
-[discover] Button DOWN - number: 3
-[discover] Button UP   - number: 3
-```
-
-Then put those numbers in `~/.config/mousefix/config.yaml`.
-
-## CLI
-
-```text
-MouseFix              Run the daemon
-MouseFix run          Same as above
-MouseFix discover     Log button numbers for mouse events
-MouseFix help         Show help
-MouseFix version      Show version
-```
-
-Use the full installed path unless you added `MouseFix` or `mousefix` to your `PATH`.
-
-## Local Validation
-
-Build the package:
-
-```bash
-swift build
-```
-
-Run deterministic parser/config checks:
-
-```bash
-swift run MouseFixCoreChecks
-```
-
-This repo uses `MouseFixCoreChecks` as a framework-free check executable, not a SwiftPM test target. That keeps validation runnable on Command Line Tools installations where `XCTest` or Swift `Testing` are unavailable. `swift test` currently reports no tests found.
-
-The check target covers action parsing, YAML button keys, gesture mappings, tilt mappings, haptic device parsing, and invalid YAML fallback. It does not test event taps, Accessibility prompts, synthetic input delivery, CoreDock notifications, AppKit overlay behavior, or Logitech HID++ haptics. Those still require manual hardware testing on macOS.
+The checks cover config parsing and bounds, default mappings, device
+classification, held-modifier composition, arrow-event flags, side-wheel
+routing, smooth-scroll physics and output fields, and HID++ control parsing.
+Accessibility permission, overlay appearance, firmware behavior, and real input
+delivery still require manual testing on macOS hardware.
 
 ## Architecture
 
 ```text
 Sources/MouseFix/
-  main.swift            CLI entry, daemon loop, menu bar item, signal handling
-  ActionRunner.swift    Runtime action execution through local input and CoreDock APIs
-  EventTap.swift        Session `CGEvent` tap for otherMouse and scrollWheel events
-  GestureEngine.swift   Hold button plus mouse movement into directional actions
-  HapticEngine.swift    IOKit HID manager and Logitech HID++ reports
-  LaserPointer.swift    Transparent NSWindow overlay that follows the cursor
+  main.swift                     Runtime composition, menu bar, cleanup
+  EventTap.swift                 Input routing and device isolation
+  ActionRunner.swift             Synthetic shortcuts and system actions
+  HeldModifierController.swift   Mouse-held modifier state
+  SmoothScrollEngine.swift       Scroll physics and phased event output
+  InputDeviceResolver.swift      Physical device classification
+  LogitechControlMonitor.swift   Temporary HID++ control diversion
+  GestureEngine.swift            Hold-and-move gestures
+  LaserPointer.swift             Multi-display overlay
+  HapticEngine.swift             Disabled future haptic boundary
 
 Sources/MouseFixCore/
-  ButtonMap.swift       Action model and button number to action mapping
-  Config.swift          YAML config loading through Yams
-  KeySynth.swift        Action string parser and keycode lookup
+  ButtonMap.swift                Action and mapping model
+  Config.swift                   YAML parsing and defaults
+  KeySynth.swift                 Shortcut parsing and keycodes
+  SmoothScrollSettings.swift     Bounded scroll configuration
 
-Tests/MouseFixCoreChecks/
-  main.swift            Framework-free parser/config check executable
+Sources/MouseFixHIDBridge/
+  MouseFixHIDBridge.c            Weak sender-ID bridge
+
+Tests/
+  MouseFixCoreChecks/            Framework-free core checks
+  MouseFixTests/                 Runtime behavior tests
 ```
-
-Event flow:
-
-1. `EventTap` receives `otherMouseDown`, `otherMouseUp`, movement, and horizontal `scrollWheel` events.
-2. The raw button number or scroll delta is looked up in `ButtonMap`.
-3. MouseFix suppresses the original event when it handles a mapping.
-4. `ActionRunner`, `GestureEngine`, `LaserPointer`, or `HapticEngine` performs the configured action.
-
-## Limitations
-
-- Accessibility permission is required. Without it, MouseFix does not work.
-- Raw button numbers are not stable across all mice, receivers, connection modes, or firmware. Use discovery mode.
-- `MissionControl`, `AppExpose`, and `ShowDesktop` use private CoreDock notifications. Apple can break them in a macOS update.
-- Haptics are Logitech HID++ only, best effort, use a hardcoded feature index after a feature query, and may fail on some firmware or receiver setups.
-- Automated checks cover config/action parsing only. Event tap behavior, synthetic input delivery, overlay behavior, and haptics require manual macOS hardware testing.
-- There is no signed or notarized app here. You are running an unsigned local build.
-- There is no installer, updater, login item, or GUI config editor.
 
 ## Requirements
 
 - macOS 13 or newer.
 - Swift 5.9 or newer.
-- A multi-button mouse for button remapping.
+- A multi-button mouse for remapping.
 
 ## License
 
-Apache License 2.0. See [LICENSE](LICENSE).
-
-Attribution notices are listed in [NOTICE](NOTICE).
+Apache License 2.0. See [LICENSE](LICENSE). Attribution notices are in
+[NOTICE](NOTICE).
