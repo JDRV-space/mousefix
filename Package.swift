@@ -6,7 +6,7 @@ let package = Package(
     name: "MouseFix",
     platforms: [.macOS(.v13)],
     dependencies: [
-        .package(url: "https://github.com/jpsim/Yams.git", from: "5.0.0"),
+        .package(url: "https://github.com/jpsim/Yams.git", from: "6.2.2"),
         .package(
             url: "https://github.com/swiftlang/swift-testing.git",
             exact: "6.3.2"
