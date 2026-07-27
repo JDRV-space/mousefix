@@ -44,4 +44,3 @@ scroll:
   device: "mx master"
   response: 0.68
   speed: 1.0
-  inertia: 0.89

@@ -80,9 +80,6 @@ public struct Config {
             if let speed = number(scrollDict["speed"]) {
                 map.smoothScroll.applySpeed(speed)
             }
-            if let inertia = number(scrollDict["inertia"]) {
-                map.smoothScroll.applyInertia(inertia)
-            }
         }
 
         return Config(defaultProfile: map)

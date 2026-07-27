@@ -35,7 +35,6 @@ private func parsesButtonGestureTiltAndScrollConfig() {
       device: "MX Master"
       response: 0.7
       speed: 1.2
-      inertia: 0.9
     """
 
     let map = Config.parse(yaml: yaml).defaultProfile
@@ -56,7 +55,6 @@ private func parsesButtonGestureTiltAndScrollConfig() {
     expect(map.smoothScroll.deviceName == "MX Master", "scroll device should parse")
     expect(map.smoothScroll.response == 0.7, "scroll response should parse")
     expect(map.smoothScroll.speed == 1.2, "scroll speed should parse")
-    expect(map.smoothScroll.inertia == 0.9, "scroll inertia should parse")
 }
 
 private func invalidYamlFallsBackToMxMasterDefaults() {
