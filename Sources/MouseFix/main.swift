@@ -276,7 +276,6 @@ func printMappings(_ map: ButtonMap) {
         print("    device   -> \(map.smoothScroll.deviceName)")
         print("    response -> \(map.smoothScroll.response)")
         print("    speed    -> \(map.smoothScroll.speed)")
-        print("    inertia  -> \(map.smoothScroll.inertia)")
     }
 }
 

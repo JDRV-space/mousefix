@@ -42,9 +42,6 @@ enum SmoothScrollPhase: Equatable {
     case touchBegan
     case touchChanged
     case touchEnded
-    case momentumBegan
-    case momentumChanged
-    case momentumEnded
 }
 
 struct SmoothScrollFrame: Equatable {
@@ -57,7 +54,6 @@ struct SmoothScrollPhysics {
     private enum State {
         case idle
         case touching
-        case momentum
     }
 
     private let settings: SmoothScrollSettings
@@ -68,10 +64,8 @@ struct SmoothScrollPhysics {
     private var lastInputTimestamp: TimeInterval?
     private var lastTickTimestamp: TimeInterval?
     private var touchHasBegun = false
-    private var momentumHasBegun = false
 
     private let inputGrace: TimeInterval = 1.0 / 25.0
-    private let stopThreshold = 0.5
 
     init(settings: SmoothScrollSettings) {
         self.settings = settings
@@ -86,18 +80,13 @@ struct SmoothScrollPhysics {
             return
         }
 
-        if state == .momentum {
-            cancelOpposingMomentum(with: delta)
-        }
-
         pending.x += delta.x
         pending.y += delta.y
         lastInputTimestamp = timestamp
 
-        if state == .idle || state == .momentum {
+        if state == .idle {
             state = .touching
             touchHasBegun = false
-            momentumHasBegun = false
         }
 
         if lastTickTimestamp == nil {
@@ -114,7 +103,8 @@ struct SmoothScrollPhysics {
         let dt = min(max(timestamp - previousTick, 1.0 / 240.0), 1.0 / 24.0)
         lastTickTimestamp = timestamp
 
-        if pending.hasMovement {
+        let hasPendingInput = pending.hasMovement
+        if hasPendingInput {
             desiredVelocity = ScrollVector(
                 x: velocityTarget(for: pending.x),
                 y: velocityTarget(for: pending.y)
@@ -129,7 +119,7 @@ struct SmoothScrollPhysics {
             return nil
 
         case .touching:
-            if hasFreshInput {
+            if hasPendingInput {
                 let blend = min(max((0.35 + settings.response) * dt * 60, 0), 1)
                 velocity.x += (desiredVelocity.x - velocity.x) * blend
                 velocity.y += (desiredVelocity.y - velocity.y) * blend
@@ -144,29 +134,14 @@ struct SmoothScrollPhysics {
                 return SmoothScrollFrame(delta: delta, phase: phase)
             }
 
-            state = .momentum
-            touchHasBegun = false
-            momentumHasBegun = false
-            return SmoothScrollFrame(delta: .zero, phase: .touchEnded)
-
-        case .momentum:
-            let frameScale = max(dt * 60, 0.25)
-            let perFrameDecay = min(max(0.78 + settings.inertia * 0.20, 0.78), 0.98)
-            let decay = pow(perFrameDecay, frameScale)
-            velocity.x *= decay
-            velocity.y *= decay
-
-            if max(abs(velocity.x), abs(velocity.y)) <= stopThreshold {
-                reset()
-                return SmoothScrollFrame(delta: .zero, phase: .momentumEnded)
+            // Keep nearby wheel impulses in one gesture, but never generate
+            // movement after the physical wheel stops producing input.
+            if hasFreshInput {
+                return nil
             }
 
-            let phase: SmoothScrollPhase = momentumHasBegun ? .momentumChanged : .momentumBegan
-            momentumHasBegun = true
-            return SmoothScrollFrame(
-                delta: ScrollVector(x: velocity.x * dt, y: velocity.y * dt),
-                phase: phase
-            )
+            reset()
+            return SmoothScrollFrame(delta: .zero, phase: .touchEnded)
         }
     }
 
@@ -178,7 +153,6 @@ struct SmoothScrollPhysics {
         lastInputTimestamp = nil
         lastTickTimestamp = nil
         touchHasBegun = false
-        momentumHasBegun = false
     }
 
     private func velocityTarget(for input: Double) -> Double {
@@ -192,17 +166,6 @@ struct SmoothScrollPhysics {
         let scale = 33 * (0.85 + settings.speed * 0.4)
         let result = acceleratedMagnitude * scale
         return input < 0 ? -result : result
-    }
-
-    private mutating func cancelOpposingMomentum(with delta: ScrollVector) {
-        if delta.x != 0, velocity.x != 0, delta.x.sign != velocity.x.sign {
-            velocity.x = 0
-            desiredVelocity.x = 0
-        }
-        if delta.y != 0, velocity.y != 0, delta.y.sign != velocity.y.sign {
-            velocity.y = 0
-            desiredVelocity.y = 0
-        }
     }
 }
 
@@ -403,12 +366,6 @@ final class SmoothScrollEngine {
             return (.changed, .none)
         case .touchEnded:
             return (.ended, .none)
-        case .momentumBegan:
-            return (nil, .begin)
-        case .momentumChanged:
-            return (nil, .continuous)
-        case .momentumEnded:
-            return (nil, .end)
         }
     }
 }

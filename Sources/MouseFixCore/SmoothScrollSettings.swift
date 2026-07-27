@@ -6,7 +6,6 @@ public struct SmoothScrollSettings: Equatable {
     public var deviceName = "mx master"
     public var response = 0.68
     public var speed = 1.0
-    public var inertia = 0.89
 
     public init() {}
 
@@ -16,10 +15,6 @@ public struct SmoothScrollSettings: Equatable {
 
     public mutating func applySpeed(_ value: Double) {
         speed = value.clamped(to: 0.1 ... 4)
-    }
-
-    public mutating func applyInertia(_ value: Double) {
-        inertia = value.clamped(to: 0 ... 1)
     }
 }
 

@@ -24,7 +24,6 @@ struct ConfigParsingTests {
           device: "MX Master 4"
           response: 0.7
           speed: 1.2
-          inertia: 0.9
         """)
 
         let map = config.defaultProfile
@@ -36,7 +35,6 @@ struct ConfigParsingTests {
         #expect(map.smoothScroll.deviceName == "MX Master 4")
         #expect(map.smoothScroll.response == 0.7)
         #expect(map.smoothScroll.speed == 1.2)
-        #expect(map.smoothScroll.inertia == 0.9)
     }
 
     @Test
@@ -45,12 +43,10 @@ struct ConfigParsingTests {
         scroll:
           response: -4
           speed: 100
-          inertia: 2
         """).defaultProfile
 
         #expect(map.smoothScroll.response == 0)
         #expect(map.smoothScroll.speed == 4)
-        #expect(map.smoothScroll.inertia == 1)
     }
 
     @Test
@@ -212,7 +208,7 @@ struct ActionRunnerTests {
 @Suite
 struct SmoothScrollPhysicsTests {
     @Test
-    func producesTouchThenMomentumPhaseSequence() {
+    func stopsMovingWhenWheelInputEnds() {
         var physics = SmoothScrollPhysics(settings: SmoothScrollSettings())
         physics.feed(delta: ScrollVector(x: 12, y: 0), timestamp: 0)
 
@@ -220,23 +216,11 @@ struct SmoothScrollPhysicsTests {
         #expect(began?.phase == .touchBegan)
         #expect(abs(began?.delta.x ?? 0) > 0)
 
+        #expect(physics.advance(to: 0.02) == nil)
+        #expect(physics.isRunning)
         #expect(physics.advance(to: 0.1)?.phase == .touchEnded)
-        #expect(
-            physics.advance(to: 0.1 + 1.0 / 120.0)?.phase
-                == .momentumBegan
-        )
-
-        var finalPhase: SmoothScrollPhase?
-        for frame in 1 ... 2_000 {
-            let timestamp = 0.1 + Double(frame + 1) / 120.0
-            finalPhase = physics.advance(to: timestamp)?.phase
-            if finalPhase == .momentumEnded {
-                break
-            }
-        }
-
-        #expect(finalPhase == .momentumEnded)
         #expect(!physics.isRunning)
+        #expect(physics.advance(to: 0.1 + 1.0 / 120.0) == nil)
     }
 
     @Test
@@ -290,7 +274,7 @@ struct SmoothScrollPhysicsTests {
     }
 
     @Test
-    func postsTrackpadShapedContinuousScrollEvents() throws {
+    func postsContinuousScrollThatEndsWithoutMomentum() throws {
         var timestamp = 0.0
         var output: [CGEvent] = []
         let engine = SmoothScrollEngine(
@@ -310,16 +294,30 @@ struct SmoothScrollPhysicsTests {
         #expect(engine.consume(input))
         timestamp = 1.0 / 120.0
         engine.tick()
-        engine.stop()
+        timestamp = 0.02
+        engine.tick()
+        #expect(output.count == 1)
+        timestamp = 0.1
+        engine.tick()
+        timestamp = 0.2
+        engine.tick()
 
-        let event = try #require(output.first)
-        #expect(SmoothScrollEngine.isSynthetic(event))
-        #expect(event.getIntegerValueField(.scrollWheelEventIsContinuous) == 1)
+        #expect(output.count == 2)
+        let began = try #require(output.first)
+        let ended = try #require(output.last)
+        #expect(SmoothScrollEngine.isSynthetic(began))
+        #expect(began.getIntegerValueField(.scrollWheelEventIsContinuous) == 1)
         #expect(
-            event.getIntegerValueField(.scrollWheelEventScrollPhase)
+            began.getIntegerValueField(.scrollWheelEventScrollPhase)
                 == Int64(CGScrollPhase.began.rawValue)
         )
-        #expect(event.getIntegerValueField(.scrollWheelEventMomentumPhase) == 0)
+        #expect(
+            ended.getIntegerValueField(.scrollWheelEventScrollPhase)
+                == Int64(CGScrollPhase.ended.rawValue)
+        )
+        #expect(output.allSatisfy {
+            $0.getIntegerValueField(.scrollWheelEventMomentumPhase) == 0
+        })
     }
 
     @Test

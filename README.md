@@ -64,7 +64,10 @@ MouseFix reads:
 ~/.config/mousefix/config.yaml
 ```
 
-If the file is missing, the verified MX Master defaults above are used.
+The versioned `config.example.yaml` is the portable source of truth for the
+verified MX Master profile. The compiled defaults intentionally match it, so a
+fresh clone works without a local config file. Copy it when you want an
+editable per-machine override:
 
 ```bash
 mkdir -p ~/.config/mousefix
@@ -98,7 +101,6 @@ scroll:
   device: "mx master"
   response: 0.68
   speed: 1.0
-  inertia: 0.89
 ```
 
 A modifier without a key, such as `Cmd`, `Shift`, `Ctrl`, or `Opt`, remains
@@ -113,7 +115,6 @@ Scroll settings are bounded at parse time:
 
 - `response`: `0...1`
 - `speed`: `0.1...4`
-- `inertia`: `0...1`
 
 ## Security And Privacy
 
