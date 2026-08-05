@@ -1,7 +1,11 @@
 # MouseFix config
 # Copy to ~/.config/mousefix/config.yaml
 #
-# Run `MouseFix discover` if your mouse reports different button numbers.
+# This file defines the complete profile. Valid local YAML replaces the
+# compiled profile; omitted button, gesture, and tilt mappings are not inherited.
+#
+# If button numbers differ, run:
+# /Applications/MouseFix.app/Contents/MacOS/MouseFix discover
 #
 # A modifier by itself is held until that mouse button is released. This lets
 # the mouse button combine with a physical keyboard key, such as Cmd + R.

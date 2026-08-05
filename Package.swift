@@ -1,6 +1,40 @@
-// swift-tools-version: 5.9
+// swift-tools-version: 6.2
 
+import Foundation
 import PackageDescription
+
+private func selectedDeveloperDirectory() -> String {
+    if let explicitDirectory = ProcessInfo.processInfo.environment["DEVELOPER_DIR"],
+       !explicitDirectory.isEmpty {
+        return explicitDirectory
+    }
+
+    let process = Process()
+    let output = Pipe()
+    process.executableURL = URL(fileURLWithPath: "/usr/bin/xcode-select")
+    process.arguments = ["-p"]
+    process.standardOutput = output
+    process.standardError = FileHandle.nullDevice
+
+    do {
+        try process.run()
+        process.waitUntilExit()
+    } catch {
+        fatalError("Unable to query the active developer directory: \(error)")
+    }
+
+    let data = output.fileHandleForReading.readDataToEndOfFile()
+    let directory = String(decoding: data, as: UTF8.self)
+        .trimmingCharacters(in: .whitespacesAndNewlines)
+    guard process.terminationStatus == 0, !directory.isEmpty else {
+        fatalError("xcode-select did not return an active developer directory")
+    }
+    return directory
+}
+
+private let testingLibraryPath = URL(
+    fileURLWithPath: selectedDeveloperDirectory()
+).appendingPathComponent("Library/Developer/usr/lib").path
 
 let package = Package(
     name: "MouseFix",
@@ -43,11 +77,12 @@ let package = Package(
             path: "Tests/MouseFixTests",
             linkerSettings: [
                 .unsafeFlags([
-                    "-L", "/Library/Developer/CommandLineTools/Library/Developer/usr/lib",
+                    "-L", testingLibraryPath,
                     "-Xlinker", "-rpath",
-                    "-Xlinker", "/Library/Developer/CommandLineTools/Library/Developer/usr/lib",
+                    "-Xlinker", testingLibraryPath,
                 ]),
             ]
         ),
-    ]
+    ],
+    swiftLanguageModes: [.v5]
 )

@@ -85,8 +85,8 @@ public struct Config {
         return Config(defaultProfile: map)
     }
 
-    /// MX Master 4 defaults - works out of the box.
-    /// These match the button mappings from the original plan.
+    /// Recommended MX Master 4 defaults used when no local config exists.
+    /// Tests keep these values in parity with config.example.yaml.
     /// Run `mousefix discover` only if your numbers differ.
     public static func mxMasterDefaults() -> ButtonMap {
         var map = ButtonMap()

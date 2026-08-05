@@ -7,8 +7,8 @@ let mouseFixVersion = "0.2.0"
 
 // MARK: - CLI Argument Parsing
 
-let args = CommandLine.arguments
-let command = args.count > 1 ? args[1] : "run"
+let args = CommandLine.arguments.dropFirst().filter { !$0.hasPrefix("-psn_") }
+let command = args.first ?? "run"
 
 switch command {
 case "discover":

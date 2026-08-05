@@ -50,7 +50,7 @@ struct ConfigParsingTests {
     }
 
     @Test
-    func defaultsMatchVerifiedMouseMappings() {
+    func compiledDefaultsDefineRecommendedProfile() {
         let map = Config.mxMasterDefaults()
 
         #expect(map.buttons[2] == .middleClick)
@@ -60,6 +60,43 @@ struct ConfigParsingTests {
         #expect(map.gestureButton == 6)
         #expect(map.tiltLeft == Action.parse("Left"))
         #expect(map.tiltRight == Action.parse("Right"))
+    }
+
+    @Test
+    func exampleProfileMatchesCompiledDefaults() throws {
+        let repositoryRoot = URL(fileURLWithPath: #filePath)
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+        let exampleURL = repositoryRoot.appendingPathComponent("config.example.yaml")
+        let exampleYAML = try String(contentsOf: exampleURL, encoding: .utf8)
+
+        let example = Config.parse(yaml: exampleYAML).defaultProfile
+        let compiled = Config.mxMasterDefaults()
+
+        #expect(example.buttons == compiled.buttons)
+        #expect(example.gestureButton == compiled.gestureButton)
+        #expect(example.gestureClick == compiled.gestureClick)
+        #expect(example.gestureHoldLeft == compiled.gestureHoldLeft)
+        #expect(example.gestureHoldRight == compiled.gestureHoldRight)
+        #expect(example.gestureHoldUp == compiled.gestureHoldUp)
+        #expect(example.gestureHoldDown == compiled.gestureHoldDown)
+        #expect(example.tiltLeft == compiled.tiltLeft)
+        #expect(example.tiltRight == compiled.tiltRight)
+        #expect(example.smoothScroll == compiled.smoothScroll)
+    }
+
+    @Test
+    func localConfigIsACompleteProfileReplacement() {
+        let map = Config.parse(yaml: """
+        buttons:
+          4: "Cmd"
+        """).defaultProfile
+
+        #expect(map.buttons == [4: .heldModifier(.maskCommand)])
+        #expect(map.gestureButton == -1)
+        #expect(map.tiltLeft == .none)
+        #expect(map.tiltRight == .none)
     }
 }
 
@@ -98,6 +135,15 @@ struct SideScrollCommandTests {
             delta: ScrollVector(x: 36, y: 0),
             buttonMap: map
         ) == nil)
+    }
+}
+
+@Suite
+struct ButtonRoutingTests {
+    @Test
+    func synthesizesMiddleClickOnlyForRemappedButtons() {
+        #expect(!EventTap.shouldSynthesizeMiddleClick(forButton: 2))
+        #expect(EventTap.shouldSynthesizeMiddleClick(forButton: 7))
     }
 }
 

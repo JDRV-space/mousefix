@@ -162,7 +162,11 @@ final class EventTap {
 
         switch action {
         case .middleClick:
-            return event
+            guard Self.shouldSynthesizeMiddleClick(forButton: button) else {
+                return event
+            }
+            ActionRunner.fire(action)
+            return nil
         case .laserPointer:
             laserPointer.show()
             return nil
@@ -194,7 +198,7 @@ final class EventTap {
 
         switch action {
         case .middleClick:
-            return event
+            return Self.shouldSynthesizeMiddleClick(forButton: button) ? nil : event
         case .laserPointer:
             laserPointer.hide()
             return nil
@@ -261,6 +265,10 @@ final class EventTap {
 
         let verticalDelta = ScrollVector(x: 0, y: delta.y)
         return verticalScrollEngine.consume(event, delta: verticalDelta) ? nil : event
+    }
+
+    static func shouldSynthesizeMiddleClick(forButton button: Int64) -> Bool {
+        button != Int64(CGMouseButton.center.rawValue)
     }
 }
 
